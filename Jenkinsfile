@@ -26,10 +26,13 @@ pipeline {
 
         stage('Run Nightwatch Tests on BrowserStack') {
             steps {
-                browserstack(credentialsId: '1bb72bec-9071-456e-994a-368e3aa8d5ee') { // ✅ Important wrapper
-                    sh 'npx nightwatch --env browserstack'
+                browserstack(credentialsId: '1bb72bec-9071-456e-994a-368e3aa8d5ee') {
+                    sh '''
+                      echo "Running tests on BrowserStack App Automate with build name: $BROWSERSTACK_BUILD_NAME"
+                      npx nightwatch --env browserstack
+                    '''
                 }
-                browserStackReportPublisher 'automate' // ✅ Publish report after tests
+                sleep time: 15, unit: 'SECONDS' // optional, helps if BrowserStack needs time
             }
         }
     }
@@ -37,7 +40,8 @@ pipeline {
     post {
         always {
             archiveArtifacts artifacts: '**/tests_output/**/*.*', allowEmptyArchive: true
-            echo 'Build finished!'
+            echo 'Build finished! ✅'
+            echo '👉 Check BrowserStack App Automate Dashboard manually for test results: https://app-automate.browserstack.com'
         }
         failure {
             echo '❌ Build failed.'
