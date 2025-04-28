@@ -1,11 +1,14 @@
 pipeline {
     agent any
+
     tools {
         nodejs 'node16'
     }
+
     environment {
         BROWSERSTACK_USERNAME = credentials('browserstack-username')
         BROWSERSTACK_ACCESS_KEY = credentials('browserstack-accesskey')
+        BROWSERSTACK_BUILD_NAME = "jenkins-${JOB_NAME}-${BUILD_NUMBER}" // ✅ ADD THIS LINE
     }
 
     stages {
@@ -21,10 +24,11 @@ pipeline {
         }
         stage('Run Tests on BrowserStack') {
             steps {
-                sh 'npm run single-android'
+                sh 'npm run single-android' // will read BROWSERSTACK_BUILD_NAME from env
             }
         }
     }
+
     post {
         always {
             archiveArtifacts artifacts: '**/tests_output/**/*.*', allowEmptyArchive: true
