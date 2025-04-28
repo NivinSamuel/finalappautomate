@@ -16,7 +16,7 @@ const browserStack = {
       userName: process.env.BROWSERSTACK_USERNAME,
       accessKey: process.env.BROWSERSTACK_ACCESS_KEY,
       appiumVersion: '1.22.0',
-      buildName: process.env.BROWSERSTACK_BUILD_NAME || "browserstack-appium-nightwatch-example-build", // <-- ✅ ADD THIS
+      buildName: process.env.BROWSERSTACK_BUILD_NAME || "browserstack-appium-nightwatch-example-build", // ✅ THIS LINE IS CRUCIAL
     }
   }
 }
@@ -26,15 +26,14 @@ const nightwatchConfigs = {
   live_output: true,
   plugins: ['@nightwatch/browserstack'],
 
-  // browserstack plugin settings...
   '@nightwatch/browserstack': {
-    browserstackLocal: false,
+    browserstackLocal: false, // set true if you are testing localhost apps
     test_observability: {
       enabled: true,
       user: process.env.BROWSERSTACK_USERNAME,
       key: process.env.BROWSERSTACK_ACCESS_KEY,
       projectName: "browserstack-appium-nightwatch-example-project",
-      buildName: process.env.BROWSERSTACK_BUILD_NAME || "browserstack-appium-nightwatch-example-build",
+      buildName: process.env.BROWSERSTACK_BUILD_NAME || "browserstack-appium-nightwatch-example-build", // ✅ already correctly dynamic
     }
   },
 
@@ -49,7 +48,7 @@ const nightwatchConfigs = {
 
     "browserstack.android_01": {
       extends: 'browserstack',
-      'desiredCapabilities': {
+      desiredCapabilities: {
         browserName: null,
         'appium:options': {
           automationName: 'UiAutomator2',
@@ -62,7 +61,7 @@ const nightwatchConfigs = {
 
     "browserstack.ios_01": {
       extends: 'browserstack',
-      'desiredCapabilities': {
+      desiredCapabilities: {
         browserName: null,
         'appium:options': {
           automationName: 'XCUITest',
@@ -75,6 +74,7 @@ const nightwatchConfigs = {
   }
 }
 
+// Merge any additional environments
 for (let key in additonalEnvironments.test_settings) {
   nightwatchConfigs.test_settings[key] = {
     ...browserStack,

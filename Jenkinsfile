@@ -1,45 +1,85 @@
-pipeline {
-    agent any
-    tools {
-        nodejs 'node16'
-    }
-    environment {
-        BROWSERSTACK_USERNAME = credentials('browserstack-username')
-        BROWSERSTACK_ACCESS_KEY = credentials('browserstack-accesskey')
-    }
+const additonalEnvironments = require("./environments");
 
-    stages {
-        stage('Checkout') {
-            steps {
-                git branch: 'main', url: 'https://github.com/NivinSamuel/finalappautomate.git'
-            }
-        }
-        stage('Install Dependencies') {
-            steps {
-                sh 'npm install'
-            }
-        }
-        stage('Run Tests on BrowserStack') {
-            steps {
-                sh 'npm run single-android'
-            }
-        }
-        stage('Run Nightwatch Tests on BrowserStack') {
-            steps {
-                browserstack(credentialsId: '1bb72bec-9071-456e-994a-368e3aa8d5ee') {
-                    sh 'npx nightwatch --env browserstack'
-                }
-            }
-        }
-    }
+if (!additonalEnvironments.test_settings)
+  additonalEnvironments.test_settings = {};
 
-    post {
-        always {
-            // 1) Archive any test-output artifacts you have
-            archiveArtifacts artifacts: '**/tests_output/**/*.*', allowEmptyArchive: true
+const browserStack = {
+  webdriver: {
+    start_process: false
+  },
 
-            // 2) Publish the BrowserStack App Automate report exactly once here
-            browserStackReportPublisher 'app_automate'
-        }
+  selenium: {
+    host: 'hub.browserstack.com',
+    port: 443
+  },
+  desiredCapabilities: {
+    'bstack:options': {
+      userName: process.env.BROWSERSTACK_USERNAME,
+      accessKey: process.env.BROWSERSTACK_ACCESS_KEY,
+      appiumVersion: '1.22.0',
     }
+  },
 }
+
+const nightwatchConfigs = {
+  src_folders: [],
+  live_output: true,
+  plugins: ['@nightwatch/browserstack'],
+
+  // browserstack plugin settings...
+  '@nightwatch/browserstack': {
+    browserstackLocal: false,
+    test_observability: {
+      enabled: true,
+      user: process.env.BROWSERSTACK_USERNAME,
+      key: process.env.BROWSERSTACK_ACCESS_KEY,
+      projectName: "browserstack-appium-nightwatch-example-project",
+      buildName: process.env.BROWSERSTACK_BUILD_NAME || "browserstack-appium-nightwatch-example-build",
+    }
+  },
+
+  test_settings: {
+    default: {
+      launch_url: 'https://nightwatchjs.org'
+    },
+
+    browserstack: {
+      ...browserStack
+    },
+
+    "browserstack.android_01": {
+      extends: 'browserstack',
+      'desiredCapabilities': {
+        browserName: null,
+        'appium:options': {
+          automationName: 'UiAutomator2',
+          app: 'bs://b190a4a3e1399d8d18aae8ca4151e8adb4e00642', // updated Android app_url
+          platformVersion: '11.0',
+          deviceName: 'Google Pixel 5'
+        }
+      }
+    },
+
+    "browserstack.ios_01": {
+      extends: 'browserstack',
+      'desiredCapabilities': {
+        browserName: null,
+        'appium:options': {
+          automationName: 'XCUITest',
+          app: 'bs://635a400afae5827d0f243d2bc470d64092502e7f', // updated iOS app_url
+          platformVersion: '16',
+          deviceName: 'iPhone 14'
+        }
+      }
+    },
+  }
+}
+
+for (let key in additonalEnvironments.test_settings) {
+  nightwatchConfigs.test_settings[key] = {
+    ...browserStack,
+    ...additonalEnvironments.test_settings[key]
+  };
+}
+
+module.exports = nightwatchConfigs;
