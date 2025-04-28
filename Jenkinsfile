@@ -1,10 +1,6 @@
 pipeline {
     agent any
 
-    tools {
-        nodejs 'node16' 
-    }
-
     environment {
         BROWSERSTACK_USERNAME = credentials('browserstack-username')
         BROWSERSTACK_ACCESS_KEY = credentials('browserstack-accesskey')
@@ -27,9 +23,14 @@ pipeline {
             }
         }
     }
+
     post {
         always {
+            // Archive any test-output artifacts you have
             archiveArtifacts artifacts: '**/tests_output/**/*.*', allowEmptyArchive: true
+
+            // ← New: publish the BrowserStack App Automate report
+            browserStackReportPublisher 'automate'
         }
     }
 }
