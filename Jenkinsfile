@@ -26,11 +26,10 @@ pipeline {
 
         stage('Run Nightwatch Tests on BrowserStack') {
             steps {
-                browserstack(credentialsId: '1bb72bec-9071-456e-994a-368e3aa8d5ee') {
+                browserstack(credentialsId: '1bb72bec-9071-456e-994a-368e3aa8d5ee') { // ✅ Important wrapper
                     sh 'npx nightwatch --env browserstack'
                 }
-                sleep time: 15, unit: 'SECONDS' // 💤 Wait for BrowserStack to register the build
-                browserStackReportPublisher 'automate'
+                browserStackReportPublisher 'automate' // ✅ Publish report after tests
             }
         }
     }
