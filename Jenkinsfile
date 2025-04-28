@@ -33,7 +33,7 @@ pipeline {
                     '''
                 }
                 sleep time: 120, unit: 'SECONDS' // Give BrowserStack a few seconds to register the build
-                browserStackReportPublisher 'automate' // ✅ Correct position
+                browserStackReportPublisher 'app-automate' // ✅ Correct position
             }
         }
     }
