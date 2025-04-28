@@ -32,7 +32,7 @@ pipeline {
                       npm run single-android
                     '''
                 }
-                sleep time: 30, unit: 'SECONDS' // Give BrowserStack a few seconds to register the build
+                sleep time: 120, unit: 'SECONDS' // Give BrowserStack a few seconds to register the build
                 browserStackReportPublisher 'automate' // ✅ Correct position
             }
         }
