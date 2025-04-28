@@ -7,7 +7,6 @@ const browserStack = {
   webdriver: {
     start_process: false
   },
-
   selenium: {
     host: 'hub.browserstack.com',
     port: 443
@@ -17,8 +16,9 @@ const browserStack = {
       userName: process.env.BROWSERSTACK_USERNAME,
       accessKey: process.env.BROWSERSTACK_ACCESS_KEY,
       appiumVersion: '1.22.0',
+      buildName: process.env.BROWSERSTACK_BUILD_NAME || "browserstack-appium-nightwatch-example-build", // <-- ✅ ADD THIS
     }
-  },
+  }
 }
 
 const nightwatchConfigs = {
