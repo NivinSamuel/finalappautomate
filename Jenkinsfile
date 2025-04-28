@@ -39,7 +39,7 @@ pipeline {
             archiveArtifacts artifacts: '**/tests_output/**/*.*', allowEmptyArchive: true
 
             // 2) Publish the BrowserStack App Automate report exactly once here
-            browserStackReportPublisher 'automate'
+            browserStackReportPublisher 'app_automate'
         }
     }
 }
